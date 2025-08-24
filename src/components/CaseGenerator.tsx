@@ -18,8 +18,8 @@ import {
   Sparkles
 } from 'lucide-react';
 import { getClinicalCaseGenerator, type CaseGenerationOptions, type GeneratedCase } from '../services/caseGenerator';
-import PersonaSelector from './PersonaSelector';
-import { AI_PERSONAS } from '../services/aiPersonas';
+// import PersonaSelector from './PersonaSelector';
+// import { AI_PERSONAS } from '../services/aiPersonas';
 
 interface CaseGeneratorProps {
   onCaseGenerated?: (cases: GeneratedCase[]) => void;
