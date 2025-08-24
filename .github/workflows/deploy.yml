@@ -6,18 +6,14 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
 jobs:
-  build:
+  deploy:
     runs-on: ubuntu-latest
-    name: 🏗️ Build Revolutionary Turkish Medical AI
+    name: 🚀 Build and Deploy Turkish Medical AI
     steps:
       - name: 📦 Checkout Repository
         uses: actions/checkout@v4
@@ -53,32 +49,16 @@ jobs:
           npm run build
           echo "✅ Production build completed!"
           ls -la dist/
-        env:
-          VITE_GEMINI_API_KEY: ${{ secrets.VITE_GEMINI_API_KEY }}
-          NODE_ENV: production
 
-      - name: 🔧 Setup Pages Configuration
-        uses: actions/configure-pages@v4
-
-      - name: 📤 Upload Build Artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: 🚀 Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: ./dist
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    name: 🚀 Deploy to Production
-    steps:
-      - name: 🌐 Deploy Turkish Medical AI to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dist
+          cname: false
 
       - name: ✅ Deployment Success Notification
         run: |
           echo "🎉 DEPLOYMENT SUCCESSFUL!"
-          echo "🌐 Site URL: ${{ steps.deployment.outputs.page_url }}"
+          echo "🌐 Site URL: https://ozzaii.github.io/medcircle-poc/"
           echo "🚀 Turkish Medical AI is now live!"
