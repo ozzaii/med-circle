@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react'
 // 🚀 BULLETPROOF GITHUB PAGES DEPLOYMENT CONFIG
 export default defineConfig({
   plugins: [react()],
-  base: '/medcircle-poc/',
+  base: '/medcircle/',
   build: {
     outDir: 'dist',
     sourcemap: false,

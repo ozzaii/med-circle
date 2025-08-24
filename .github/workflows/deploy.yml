@@ -60,5 +60,5 @@ jobs:
       - name: ✅ Deployment Success Notification
         run: |
           echo "🎉 DEPLOYMENT SUCCESSFUL!"
-          echo "🌐 Site URL: https://ozzaii.github.io/medcircle-poc/"
+          echo "🌐 Site URL: https://ozzaii.github.io/medcircle/"
           echo "🚀 Turkish Medical AI is now live!"
