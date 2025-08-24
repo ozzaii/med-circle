@@ -9,6 +9,7 @@ import {
   LogOut,
   User,
   Sparkles,
+  GraduationCap,
 } from 'lucide-react';
 import { useStore } from '../store';
 
@@ -19,6 +20,7 @@ const Sidebar = () => {
     { path: '/', label: 'Dashboard', icon: Home },
     { path: '/library', label: 'Library', icon: BookOpen },
     { path: '/reader', label: 'Reader', icon: BookOpen },
+    { path: '/mep', label: 'MEP Modules', icon: GraduationCap },
     { path: '/ai-chat', label: 'AI Assistant', icon: MessageSquare },
     { path: '/progress', label: 'Progress', icon: BarChart3 },
   ];
@@ -72,6 +74,13 @@ const Sidebar = () => {
                   <span className="font-medium">{item.label}</span>
                   {item.label === 'AI Assistant' && (
                     <Sparkles className="w-4 h-4 ml-auto text-medical-cyan animate-pulse" />
+                  )}
+                  {item.label === 'MEP Modules' && (
+                    <div className="ml-auto">
+                      <span className="text-xs bg-medical-blue/20 text-medical-blue px-2 py-1 rounded-full">
+                        NEW
+                      </span>
+                    </div>
                   )}
                 </>
               )}

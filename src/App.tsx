@@ -10,6 +10,7 @@ import Reader from './pages/Reader';
 import AIChat from './pages/AIChat';
 import Progress from './pages/Progress';
 import Welcome from './pages/Welcome';
+import MEPDashboard from './pages/MEPDashboard';
 
 function App() {
   const { user, setBooks, setUser } = useStore();
@@ -52,6 +53,7 @@ function App() {
             <Route path="reader" element={<Reader />} />
             <Route path="ai-chat" element={<AIChat />} />
             <Route path="progress" element={<Progress />} />
+            <Route path="mep" element={<MEPDashboard />} />
           </Route>
         </Routes>
       </div>

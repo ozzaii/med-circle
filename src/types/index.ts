@@ -55,7 +55,10 @@ export type MedicalCategory =
   | 'radiology'
   | 'emergency-medicine'
   | 'clinical-skills'
-  | 'medical-ethics';
+  | 'medical-ethics'
+  | 'cardiology'
+  | 'oncology'
+  | 'neurology';
 
 export interface AIContext {
   bookId: string;
@@ -90,6 +93,7 @@ export interface UserProgress {
   achievements: Achievement[];
   weakAreas: WeakArea[];
   studyHistory: StudySession[];
+  completedModules?: string[];
 }
 
 export interface Achievement {
