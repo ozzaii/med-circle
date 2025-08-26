@@ -23,6 +23,8 @@ import { getTurkishMedicalStreamingService, type StreamChunk } from '../services
 import StreamingResponse from './StreamingResponse';
 import PersonaSelector from './PersonaSelector';
 import { AI_PERSONAS, type AIPersona } from '../services/aiPersonas';
+import { analyticsService } from '../services/analyticsService';
+import { useStore } from '../store';
 
 interface ClinicalCaseProps {
   clinicalCase: ClinicalCase;
@@ -62,6 +64,9 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
   aiAnalysis,
   isAnalyzing 
 }) => {
+  const { user } = useStore();
+  const [startTime] = useState(Date.now());
+  const [decisionStartTime, setDecisionStartTime] = useState(Date.now());
   const [decisionState, setDecisionState] = useState<DecisionState>({
     currentDecisionIndex: 0,
     selectedAnswers: [],
@@ -73,7 +78,6 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
   
   const [timeRemaining, setTimeRemaining] = useState<number | null>(null);
   const [showExplanation, setShowExplanation] = useState(false);
-  const [startTime] = useState(Date.now());
   
   const [ttsState, setTTSState] = useState<TTSState>({
     isEnabled: true,
@@ -122,14 +126,22 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
     setTTSState(prev => ({ ...prev, isEnabled: !prev.isEnabled }));
   };
 
-  // Auto-announce case start
+  // Auto-announce case start and track analytics
   useEffect(() => {
-    if (decisionState.currentDecisionIndex === 0 && ttsState.isEnabled) {
-      setTimeout(() => {
-        ttsService.announceCaseStart(clinicalCase.title);
-      }, 1000);
+    if (decisionState.currentDecisionIndex === 0) {
+      // Track module start
+      if (user) {
+        analyticsService.trackModuleStart(clinicalCase.id, clinicalCase.id, user.id);
+      }
+      
+      // Announce with TTS if enabled
+      if (ttsState.isEnabled) {
+        setTimeout(() => {
+          ttsService.announceCaseStart(clinicalCase.title);
+        }, 1000);
+      }
     }
-  }, [clinicalCase.title, ttsState.isEnabled]);
+  }, [clinicalCase.title, ttsState.isEnabled, user]);
 
   // Announce case completion with TTS
   useEffect(() => {
@@ -241,6 +253,20 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
     const newTotalScore = decisionState.totalScore + selectedOption.points;
     const newRiskScore = decisionState.riskScore + selectedOption.riskImpact;
     const currentTime = (Date.now() - startTime) / 1000 / 60; // minutes
+    const responseTime = Date.now() - decisionStartTime;
+
+    // Track decision with analytics
+    if (user) {
+      analyticsService.trackDecision(
+        user.id,
+        clinicalCase.id,
+        clinicalCase.id,
+        optionId,
+        selectedOption.isCorrect,
+        responseTime,
+        currentDecision.criticalLevel === 'high' || currentDecision.criticalLevel === 'critical'
+      );
+    }
 
     setDecisionState({
       ...decisionState,
@@ -256,6 +282,7 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
 
   const handleNextDecision = () => {
     setShowExplanation(false);
+    setDecisionStartTime(Date.now()); // Reset timer for next decision
     
     if (decisionState.currentDecisionIndex < clinicalCase.decisionTree.length - 1) {
       setDecisionState({
@@ -264,6 +291,20 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
       });
     } else {
       // Case completed
+      const finalTime = (Date.now() - startTime) / 1000; // total time in seconds
+      
+      // Track module completion
+      if (user) {
+        analyticsService.trackModuleCompletion(
+          user.id,
+          clinicalCase.id,
+          clinicalCase.id,
+          decisionState.totalScore,
+          finalTime,
+          decisionState.selectedAnswers
+        );
+      }
+      
       setDecisionState({
         ...decisionState,
         completed: true

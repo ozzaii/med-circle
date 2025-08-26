@@ -20,7 +20,8 @@ import {
   Zap,
   Heart,
   AlertTriangle,
-  Flame
+  Flame,
+  BarChart3
 } from 'lucide-react';
 import { useStore } from '../store';
 import { revolutionaryMEPModules, getAIRecommendations } from '../data/mep_modules';
@@ -28,6 +29,7 @@ import type { MEPModule, ClinicalCase } from '../data/mep_modules';
 import { ClinicalCaseComponent } from '../components/ClinicalCase';
 import { MedicalTerminologyAssistant } from '../components/MedicalTerminologyAssistant';
 import { getMEPAIService } from '../services/mepAI';
+import MedRESIDENT from '../components/MedRESIDENT';
 
 /**
  * 🚨 BULLETPROOF MEP DASHBOARD - APEX PREDATOR IMPLEMENTATION
@@ -48,6 +50,7 @@ const MEPDashboard: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [personalizedRecommendations, setPersonalizedRecommendations] = useState<string[]>([]);
   const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
+  const [showMedResident, setShowMedResident] = useState(false);
   const [isTerminologyOpen, setIsTerminologyOpen] = useState(false);
   const [selectedTerm, setSelectedTerm] = useState<string>('');
 
@@ -247,7 +250,17 @@ const MEPDashboard: React.FC = () => {
             </div>
           </div>
           
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => window.location.href = '#/analytics'}
+              className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold rounded-xl hover:from-cyan-600 hover:to-blue-600 transition-all shadow-lg"
+            >
+              <BarChart3 className="w-5 h-5" />
+              Performance Analytics
+            </motion.button>
+            
             <div className="glass rounded-xl p-4 border border-medical-blue/30">
               <Globe className="w-8 h-8 text-medical-blue" />
             </div>
@@ -447,6 +460,59 @@ const MEPDashboard: React.FC = () => {
                   );
                 })}
               </AnimatePresence>
+              
+              {/* MedRESIDENT Advanced Simulations Card */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.5 }}
+                className="lg:col-span-2 group relative"
+              >
+                <div className="glass rounded-2xl p-6 border-2 border-cyan-500/30 hover:border-cyan-400/50 transition-all h-full flex flex-col relative overflow-hidden bg-gradient-to-br from-cyan-900/20 to-blue-900/20">
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-cyan-400 to-blue-500 rounded-full blur-3xl opacity-20 group-hover:opacity-30 transition-all" />
+                  
+                  <div className="flex items-start gap-4 mb-6 relative z-10">
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-500 p-0.5">
+                      <div className="w-full h-full rounded-xl bg-medical-darker flex items-center justify-center group-hover:bg-transparent transition-all">
+                        <Brain className="w-7 h-7 text-white" />
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <h3 className="text-2xl font-black text-white group-hover:text-cyan-400 transition-colors mb-2 leading-tight">
+                        MedRESIDENT Simülasyonları
+                      </h3>
+                      <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">
+                        ADVANCED
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <p className="text-gray-300 text-base leading-relaxed mb-6 relative z-10">
+                    Gerçekçi branching senaryolarla ileri düzey klinik simülasyonlar. Çoklu travma, pediatrik menenjit ve daha fazlası!
+                  </p>
+                  
+                  <div className="flex items-center gap-6 text-sm text-gray-400 mb-6 relative z-10">
+                    <span className="flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-cyan-400" />
+                      <span className="font-medium">Branching Scenarios</span>
+                    </span>
+                    <span className="flex items-center gap-2">
+                      <Activity className="w-4 h-4 text-cyan-400" />
+                      <span className="font-medium">Real-time Decisions</span>
+                    </span>
+                  </div>
+                  
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => setShowMedResident(true)}
+                    className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 text-white font-black px-8 py-4 text-lg rounded-xl shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-4"
+                  >
+                    <Brain className="w-6 h-6" />
+                    SİMÜLASYONLARI BAŞLAT
+                  </motion.button>
+                </div>
+              </motion.div>
             </div>
           </div>
         </div>
@@ -646,6 +712,35 @@ const MEPDashboard: React.FC = () => {
         onClose={() => setIsTerminologyOpen(false)}
         initialTerm={selectedTerm}
       />
+      
+      {/* MedRESIDENT Modal */}
+      <AnimatePresence>
+        {showMedResident && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+            onClick={() => setShowMedResident(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative w-full h-full max-w-7xl max-h-[90vh] overflow-auto"
+            >
+              <button
+                onClick={() => setShowMedResident(false)}
+                className="absolute top-4 right-4 z-50 p-2 bg-white/10 backdrop-blur rounded-full hover:bg-white/20 transition-all"
+              >
+                <X className="w-6 h-6 text-white" />
+              </button>
+              <MedRESIDENT />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
