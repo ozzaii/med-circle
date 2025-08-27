@@ -6,7 +6,7 @@ const genAI = new GoogleGenerativeAI({
 });
 
 export class MedicalAIService {
-  private model = 'gemini-2.5-flash-lite';
+  private model: any;
   private systemPrompt = `You are an advanced medical education AI assistant. You help medical students, residents, and healthcare professionals learn and understand complex medical concepts. 
 
 Your responses should be:
@@ -18,35 +18,30 @@ Your responses should be:
 
 Always cite specific page numbers or chapters when referencing material from books the user is studying.`;
 
+  constructor() {
+    // Initialize model only if API key is available
+    if (import.meta.env.VITE_GEMINI_API_KEY) {
+      this.model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    }
+  }
+
   async generateResponse(
     query: string,
     context: AIContext,
     bookContent?: string
   ): Promise<AIResponse> {
     try {
-      const contextPrompt = this.buildContextPrompt(context, bookContent);
-      
-      const response = await genAI.models.generateContent({
-        model: this.model,
-        contents: [
-          {
-            role: 'user',
-            parts: [
-              { text: this.systemPrompt },
-              { text: contextPrompt },
-              { text: query }
-            ]
-          }
-        ],
-        config: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 2048,
-        }
-      });
+      // Check if model is initialized
+      if (!this.model) {
+        throw new Error('Gemini API key not configured. Please add VITE_GEMINI_API_KEY to your environment variables.');
+      }
 
-      const responseText = response.text || '';
+      const contextPrompt = this.buildContextPrompt(context, bookContent);
+      const fullPrompt = `${this.systemPrompt}\n\n${contextPrompt}\n\nUser Query: ${query}`;
+      
+      const result = await this.model.generateContent(fullPrompt);
+      const response = await result.response;
+      const responseText = response.text() || '';
       const relatedConcepts = this.extractRelatedConcepts(responseText);
       const references = this.extractReferences(responseText, context.bookId);
 
@@ -72,6 +67,10 @@ Always cite specific page numbers or chapters when referencing material from boo
     count: number = 5
   ): Promise<any[]> {
     try {
+      if (!this.model) {
+        return [];
+      }
+
       const prompt = `Generate ${count} multiple-choice questions about ${topic} in medicine. 
       Difficulty level: ${difficulty}
       
@@ -84,12 +83,9 @@ Always cite specific page numbers or chapters when referencing material from boo
       
       Return only valid JSON array.`;
 
-      const response = await genAI.models.generateContent({
-        model: this.model,
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      });
-
-      const responseText = response.text || '[]';
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      const responseText = response.text() || '[]';
       return JSON.parse(responseText);
     } catch (error) {
       console.error('Error generating quiz questions:', error);
@@ -102,6 +98,10 @@ Always cite specific page numbers or chapters when referencing material from boo
     chapterTitle: string
   ): Promise<string> {
     try {
+      if (!this.model) {
+        throw new Error('Gemini API key not configured');
+      }
+
       const prompt = `Summarize the following medical chapter "${chapterTitle}" in a clear, structured format:
       
       ${chapterContent}
@@ -112,12 +112,9 @@ Always cite specific page numbers or chapters when referencing material from boo
       3. Clinical relevance
       4. Study tips`;
 
-      const response = await genAI.models.generateContent({
-        model: this.model,
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      });
-
-      return response.text || '';
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      return response.text() || '';
     } catch (error) {
       console.error('Error summarizing chapter:', error);
       throw new Error('Failed to summarize chapter');
@@ -129,6 +126,10 @@ Always cite specific page numbers or chapters when referencing material from boo
     userLevel: string
   ): Promise<string> {
     try {
+      if (!this.model) {
+        throw new Error('Gemini API key not configured');
+      }
+
       const prompt = `Explain the medical concept "${concept}" for a ${userLevel}.
       
       Include:
@@ -138,12 +139,9 @@ Always cite specific page numbers or chapters when referencing material from boo
       - Related concepts
       - Memory aids or mnemonics if applicable`;
 
-      const response = await genAI.models.generateContent({
-        model: this.model,
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      });
-
-      return response.text || '';
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      return response.text() || '';
     } catch (error) {
       console.error('Error explaining concept:', error);
       throw new Error('Failed to explain concept');
