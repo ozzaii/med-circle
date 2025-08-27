@@ -10,6 +10,7 @@ import {
   User,
   Sparkles,
   GraduationCap,
+  Stethoscope,
 } from 'lucide-react';
 import { useStore } from '../store';
 
@@ -21,6 +22,7 @@ const Sidebar = () => {
     { path: '/library', label: 'Library', icon: BookOpen },
     { path: '/reader', label: 'Reader', icon: BookOpen },
     { path: '/mep', label: 'MEP Modules', icon: GraduationCap },
+    { path: '/virtual-patient', label: 'Virtual Patient', icon: Stethoscope },
     { path: '/ai-chat', label: 'AI Assistant', icon: MessageSquare },
     { path: '/progress', label: 'Progress', icon: BarChart3 },
   ];

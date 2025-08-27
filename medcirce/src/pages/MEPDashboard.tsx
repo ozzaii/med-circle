@@ -30,6 +30,7 @@ import { ClinicalCaseComponent } from '../components/ClinicalCase';
 import { MedicalTerminologyAssistant } from '../components/MedicalTerminologyAssistant';
 import { getMEPAIService } from '../services/mepAI';
 import MedRESIDENT from '../components/MedRESIDENT';
+import { VirtualPatientSimulator } from '../components/VirtualPatientSimulator';
 
 /**
  * 🚨 BULLETPROOF MEP DASHBOARD - APEX PREDATOR IMPLEMENTATION

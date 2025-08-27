@@ -8,6 +8,7 @@ import { FullPageLoader } from './components/LoadingStates';
 import Layout from './components/Layout';
 import Welcome from './pages/Welcome';
 import MEPDashboard from './pages/MEPDashboard';
+import { VirtualPatientSimulator } from './components/VirtualPatientSimulator';
 
 // Lazy load non-critical pages
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -62,6 +63,7 @@ function App() {
             <Route path="progress" element={<Progress />} />
             <Route path="mep" element={<MEPDashboard />} />
             <Route path="analytics" element={<PerformanceAnalytics />} />
+            <Route path="virtual-patient" element={<VirtualPatientSimulator />} />
           </Route>
         </Routes>
       </Suspense>
