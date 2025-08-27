@@ -1,9 +1,10 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import type { AIContext, AIResponse } from '../types';
 
-const genAI = new GoogleGenerativeAI({
-  apiKey: import.meta.env.VITE_GEMINI_API_KEY,
-});
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
+console.log('Gemini API Key loaded:', apiKey ? `${apiKey.substring(0, 10)}...` : 'No API key found');
+
+const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
 
 export class MedicalAIService {
   private model: any;
@@ -19,9 +20,17 @@ Your responses should be:
 Always cite specific page numbers or chapters when referencing material from books the user is studying.`;
 
   constructor() {
-    // Initialize model only if API key is available
-    if (import.meta.env.VITE_GEMINI_API_KEY) {
-      this.model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    // Initialize model only if API key and genAI are available
+    if (genAI && apiKey) {
+      try {
+        this.model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        console.log('Gemini model initialized successfully');
+      } catch (error) {
+        console.error('Failed to initialize Gemini model:', error);
+        this.model = null;
+      }
+    } else {
+      console.warn('Gemini AI not initialized: Missing API key');
     }
   }
 

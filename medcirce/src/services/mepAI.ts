@@ -25,7 +25,7 @@ interface AdaptiveQuestion {
  */
 class MEPAIService {
   private genAI: GoogleGenerativeAI;
-  private model = 'gemini-2.5-flash';
+  private model: any;
   private turkishMedicalPrompt = `
     Sen Türk tıp eğitimi için özelleştirilmiş, gelişmiş bir tıbbi eğitim AI asistanısın. 
     Türk tıp öğrencileri ve asistan hekimler için:
@@ -45,12 +45,10 @@ class MEPAIService {
     - Öğrenci seviyesine uygun açıklamalar yapar
   `;
 
-  private model: any;
-
   constructor(apiKey: string) {
     this.genAI = new GoogleGenerativeAI(apiKey);
     if (apiKey) {
-      this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
+      this.model = this.genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
     }
   }
 
