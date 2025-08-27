@@ -45,8 +45,13 @@ class MEPAIService {
     - Öğrenci seviyesine uygun açıklamalar yapar
   `;
 
+  private model: any;
+
   constructor(apiKey: string) {
-    this.genAI = new GoogleGenerativeAI({ apiKey });
+    this.genAI = new GoogleGenerativeAI(apiKey);
+    if (apiKey) {
+      this.model = this.genAI.getGenerativeModel({ model: 'gemini-pro' });
+    }
   }
 
   /**
@@ -202,19 +207,14 @@ class MEPAIService {
         ${userLevel === 'student' ? 'Tıp öğrencisi seviyesine uygun açıklamalar yap.' : 'Asistan hekim seviyesinde detaylı analiz yap.'}
       `;
 
-      const response = await this.genAI.models.generateContent({
-        model: this.model,
-        contents: [{ 
-          role: 'user', 
-          parts: [
-            { text: this.turkishMedicalPrompt },
-            { text: prompt }
-          ]
-        }],
-        config: { temperature: 0.6 }
-      });
+      if (!this.model) {
+        throw new Error('AI service not initialized');
+      }
 
-      const analysisText = response.text || '';
+      const fullPrompt = `${this.turkishMedicalPrompt}\n\n${prompt}`;
+      const result = await this.model.generateContent(fullPrompt);
+      const response = await result.response;
+      const analysisText = response.text() || '';
       
       // Parse the response to extract structured feedback
       return {
@@ -262,13 +262,13 @@ class MEPAIService {
         Her öneriyi ayrı satırda, Türkçe olarak ver.
       `;
 
-      const response = await this.genAI.models.generateContent({
-        model: this.model,
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        config: { temperature: 0.7 }
-      });
+      if (!this.model) {
+        throw new Error('AI service not initialized');
+      }
 
-      const recommendationsText = response.text || '';
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      const recommendationsText = response.text() || '';
       return recommendationsText.split('\n').filter(line => line.trim().length > 0);
     } catch (error) {
       console.error('Personalized Recommendations Error:', error);
@@ -377,13 +377,13 @@ class MEPAIService {
         JSON formatında döndür.
       `;
 
-      const response = await this.genAI.models.generateContent({
-        model: this.model,
-        contents: [{ role: 'user', parts: [{ text: prompt }] }],
-        config: { temperature: 0.6 }
-      });
+      if (!this.model) {
+        throw new Error('AI service not initialized');
+      }
 
-      const responseText = response.text || '';
+      const result = await this.model.generateContent(prompt);
+      const response = await result.response;
+      const responseText = response.text() || '';
       try {
         return JSON.parse(responseText);
       } catch {
