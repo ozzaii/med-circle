@@ -23,9 +23,8 @@ Always cite specific page numbers or chapters when referencing material from boo
     // Initialize model only if API key and genAI are available
     if (genAI && apiKey) {
       try {
-        // Using Gemini 2.5 Flash-Lite - fastest and most cost-effective model
-        // Features: 1M context, multimodal, reasoning mode, $0.10/1M input
-        this.model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite-preview-06-17' });
+        // Using Gemini 2.5 Flash - powerful and fast model
+        this.model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
         console.log('Gemini model initialized successfully');
       } catch (error) {
         console.error('Failed to initialize Gemini model:', error);

@@ -48,9 +48,8 @@ class MEPAIService {
   constructor(apiKey: string) {
     this.genAI = new GoogleGenerativeAI(apiKey);
     if (apiKey) {
-      // Using Gemini 2.5 Flash-Lite for Turkish Medical AI
-      // Ultra-fast, low-latency, perfect for medical education
-      this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash-lite-preview-06-17' });
+      // Using Gemini 2.5 Flash for Turkish Medical AI
+      this.model = this.genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
     }
   }
 
