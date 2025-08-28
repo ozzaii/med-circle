@@ -515,11 +515,11 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
   const selectedOption = selectedOptionId ? currentDecision.options.find(opt => opt.id === selectedOptionId) : null;
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <div className="max-w-4xl mx-auto p-6 bg-gray-800 rounded-lg shadow-2xl border border-gray-700">
       {/* Header */}
       <div className="mb-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900">{clinicalCase.title}</h2>
+          <h2 className="text-2xl font-bold text-white">{clinicalCase.title}</h2>
           <div className="flex items-center gap-4">
             {/* TTS Controls */}
             <div className="flex items-center gap-2">
@@ -621,11 +621,11 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
                 <button
                   key={option.id}
                   onClick={() => handleDecisionSelect(option.id)}
-                  className="w-full text-left p-3 border border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                  className="w-full text-left p-4 bg-gray-700 border border-gray-600 rounded-lg hover:border-blue-500 hover:bg-gray-600 transition-all"
                   disabled={timeRemaining === 0}
                 >
-                  <span className="font-medium text-blue-600 mr-2">{option.id})</span>
-                  <span className="text-gray-700">{option.text}</span>
+                  <span className="font-medium text-blue-400 mr-2">{option.id})</span>
+                  <span className="text-gray-200">{option.text}</span>
                 </button>
               ))}
             </div>

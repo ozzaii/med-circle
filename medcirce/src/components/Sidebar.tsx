@@ -18,13 +18,13 @@ const Sidebar = () => {
   const { user, setUser } = useStore();
 
   const navItems = [
-    { path: '/', label: 'Dashboard', icon: Home },
-    { path: '/library', label: 'Library', icon: BookOpen },
-    { path: '/reader', label: 'Reader', icon: BookOpen },
-    { path: '/mep', label: 'MEP Modules', icon: GraduationCap },
-    { path: '/virtual-patient', label: 'Virtual Patient', icon: Stethoscope },
-    { path: '/ai-chat', label: 'AI Assistant', icon: MessageSquare },
-    { path: '/progress', label: 'Progress', icon: BarChart3 },
+    { path: '/', label: 'Ana Sayfa', icon: Home },
+    { path: '/library', label: 'Kütüphane', icon: BookOpen },
+    { path: '/reader', label: 'Okuyucu', icon: BookOpen },
+    { path: '/mep', label: 'MEP Modülleri', icon: GraduationCap },
+    { path: '/virtual-patient', label: 'Sanal Hasta', icon: Stethoscope },
+    { path: '/ai-chat', label: 'AI Asistan', icon: MessageSquare },
+    { path: '/progress', label: 'Öğrenme Analitiği', icon: BarChart3 },
   ];
 
   const handleLogout = () => {

@@ -8,6 +8,7 @@ import { FullPageLoader } from './components/LoadingStates';
 import Layout from './components/Layout';
 import Welcome from './pages/Welcome';
 import MEPDashboard from './pages/MEPDashboard';
+import TurkishMEPDashboard from './pages/TurkishMEPDashboard';
 import { VirtualPatientSimulator } from './components/VirtualPatientSimulator';
 
 // Lazy load non-critical pages
@@ -61,7 +62,7 @@ function App() {
             <Route path="reader" element={<Reader />} />
             <Route path="ai-chat" element={<AIChat />} />
             <Route path="progress" element={<Progress />} />
-            <Route path="mep" element={<MEPDashboard />} />
+            <Route path="mep" element={<TurkishMEPDashboard />} />
             <Route path="analytics" element={<PerformanceAnalytics />} />
             <Route path="virtual-patient" element={<VirtualPatientSimulator />} />
           </Route>
