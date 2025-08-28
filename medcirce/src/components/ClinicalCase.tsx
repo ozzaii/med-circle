@@ -324,12 +324,12 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
     const performance = getPerformanceLevel(decisionState.totalScore);
     
     return (
-      <div className="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-lg">
+      <div className="max-w-4xl mx-auto p-6 bg-medical-dark rounded-lg shadow-lg border border-medical-blue/20">
         {/* Final Results */}
         <div className="text-center mb-8">
           <Award className="w-16 h-16 mx-auto mb-4 text-yellow-500" />
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Vaka Tamamlandı! 🎉</h2>
-          <h3 className="text-xl text-gray-700">{clinicalCase.title}</h3>
+          <h2 className="text-2xl font-bold text-white mb-2">Vaka Tamamlandı! 🎉</h2>
+          <h3 className="text-xl text-gray-300">{clinicalCase.title}</h3>
         </div>
 
         {/* Performance Summary */}
@@ -337,19 +337,19 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
           <div className="bg-blue-50 p-4 rounded-lg text-center">
             <TrendingUp className="w-8 h-8 mx-auto mb-2 text-blue-600" />
             <div className="text-2xl font-bold text-blue-600">{decisionState.totalScore}/100</div>
-            <div className="text-sm text-gray-600">Toplam Puan</div>
+            <div className="text-sm text-gray-400">Toplam Puan</div>
           </div>
           
           <div className="bg-green-50 p-4 rounded-lg text-center">
             <Clock className="w-8 h-8 mx-auto mb-2 text-green-600" />
             <div className="text-2xl font-bold text-green-600">{Math.round(decisionState.timeSpent)} dk</div>
-            <div className="text-sm text-gray-600">Süre</div>
+            <div className="text-sm text-gray-400">Süre</div>
           </div>
           
           <div className="bg-purple-50 p-4 rounded-lg text-center">
             <Activity className="w-8 h-8 mx-auto mb-2 text-purple-600" />
             <div className="text-2xl font-bold text-purple-600">{decisionState.riskScore > 0 ? '+' : ''}{decisionState.riskScore}</div>
-            <div className="text-sm text-gray-600">Risk Skoru</div>
+            <div className="text-sm text-gray-400">Risk Skoru</div>
           </div>
         </div>
 
@@ -364,7 +364,7 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-3">
                 <Brain className="w-6 h-6 text-medical-purple" />
-                <h4 className="font-semibold text-gray-900">AI Analiz ve Geri Bildirim</h4>
+                <h4 className="font-semibold text-white">AI Analiz ve Geri Bildirim</h4>
               </div>
               
               {/* Persona Selector & Streaming Controls */}
@@ -404,12 +404,12 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
             {isAnalyzing && streamingState.chunks.length === 0 ? (
               <div className="flex items-center justify-center py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-medical-blue mr-3"></div>
-                <span className="text-gray-600">AI analiz yapıyor...</span>
+                <span className="text-gray-400">AI analiz yapıyor...</span>
               </div>
             ) : aiAnalysis && streamingState.chunks.length === 0 && (
               <div className="space-y-4">
                 {/* AI Feedback */}
-                <div className="bg-white/50 p-4 rounded-lg">
+                <div className="bg-medical-darker/80 p-4 rounded-lg border border-white/10">
                   <div className="flex items-center justify-between mb-2">
                     <h5 className="font-medium text-medical-blue">📝 AI Değerlendirmesi:</h5>
                     <button
@@ -421,12 +421,12 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
                       <Play className="w-4 h-4 text-medical-blue" />
                     </button>
                   </div>
-                  <p className="text-gray-700 text-sm leading-relaxed">{aiAnalysis.feedback}</p>
+                  <p className="text-gray-300 text-sm leading-relaxed">{aiAnalysis.feedback}</p>
                 </div>
                 
                 {/* AI Suggestions */}
                 {aiAnalysis.suggestions.length > 0 && (
-                  <div className="bg-white/50 p-4 rounded-lg">
+                  <div className="bg-medical-darker/80 p-4 rounded-lg border border-white/10">
                     <div className="flex items-center justify-between mb-2">
                       <h5 className="font-medium text-medical-purple">💡 İyileştirme Önerileri:</h5>
                       <button
@@ -440,7 +440,7 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
                     </div>
                     <ul className="text-sm space-y-1">
                       {aiAnalysis.suggestions.map((suggestion, index) => (
-                        <li key={index} className="flex items-start gap-2 text-gray-700">
+                        <li key={index} className="flex items-start gap-2 text-gray-300">
                           <span className="text-medical-purple mt-1">•</span>
                           <span>{suggestion}</span>
                         </li>
@@ -451,7 +451,7 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
                 
                 {/* Learning Points */}
                 {aiAnalysis.learningPoints.length > 0 && (
-                  <div className="bg-white/50 p-4 rounded-lg">
+                  <div className="bg-medical-darker/80 p-4 rounded-lg border border-white/10">
                     <div className="flex items-center justify-between mb-2">
                       <h5 className="font-medium text-medical-green">🎯 Önemli Öğrenme Noktaları:</h5>
                       <button
@@ -465,7 +465,7 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
                     </div>
                     <ul className="text-sm space-y-1">
                       {aiAnalysis.learningPoints.map((point, index) => (
-                        <li key={index} className="flex items-start gap-2 text-gray-700">
+                        <li key={index} className="flex items-start gap-2 text-gray-300">
                           <span className="text-medical-green mt-1">•</span>
                           <span>{point}</span>
                         </li>
@@ -480,22 +480,22 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
 
         {/* Decision Summary */}
         <div className="bg-gray-50 p-6 rounded-lg">
-          <h4 className="font-semibold text-gray-900 mb-4">Karar Özeti:</h4>
+          <h4 className="font-semibold text-white mb-4">Karar Özeti:</h4>
           {clinicalCase.decisionTree.map((decision, index) => {
             const selectedOptionId = decisionState.selectedAnswers[index];
             const selectedOption = decision.options.find(opt => opt.id === selectedOptionId);
             
             return (
-              <div key={decision.id} className="mb-4 p-4 bg-white rounded border">
+              <div key={decision.id} className="mb-4 p-4 bg-medical-darker rounded border border-white/10">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium text-gray-700">{decision.timePoint}</span>
+                  <span className="font-medium text-gray-300">{decision.timePoint}</span>
                   <span className={`px-2 py-1 rounded text-sm ${
                     selectedOption?.isCorrect ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                   }`}>
                     {selectedOption?.isCorrect ? '✅ Doğru' : '❌ Yanlış'} ({selectedOption?.points} puan)
                   </span>
                 </div>
-                <div className="text-sm text-gray-600">
+                <div className="text-sm text-gray-400">
                   <strong>Seçim:</strong> {selectedOption?.text}
                 </div>
                 {!selectedOption?.isCorrect && (
@@ -528,7 +528,7 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
                 className={`p-2 rounded-lg transition-colors ${
                   ttsState.isEnabled 
                     ? 'bg-medical-blue text-white hover:bg-medical-blue/80' 
-                    : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                    : 'bg-medical-darker text-gray-400 hover:bg-medical-dark border border-white/10'
                 }`}
                 title={ttsState.isEnabled ? 'Ses açık' : 'Ses kapalı'}
               >
@@ -588,12 +588,12 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
             </div>
             
             <div>
-              <h4 className="font-medium text-gray-700 mb-2">Vital Bulgular:</h4>
+              <h4 className="font-medium text-gray-300 mb-2">Vital Bulgular:</h4>
               <VitalSignsDisplay vitals={clinicalCase.vitalSigns} />
               
               {clinicalCase.labResults && clinicalCase.labResults.length > 0 && (
                 <>
-                  <h4 className="font-medium text-gray-700 mb-2 mt-4">Önemli Lab Sonuçları:</h4>
+                  <h4 className="font-medium text-gray-300 mb-2 mt-4">Önemli Lab Sonuçları:</h4>
                   <LabResultsDisplay results={clinicalCase.labResults} />
                 </>
               )}
@@ -613,7 +613,7 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
         </div>
 
         <div className="bg-gray-50 p-4 rounded-lg mb-4">
-          <h4 className="font-semibold text-gray-900 mb-3">{currentDecision.question}</h4>
+          <h4 className="font-semibold text-white mb-3">{currentDecision.question}</h4>
           
           {!showExplanation ? (
             <div className="space-y-3">
@@ -625,7 +625,7 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
                   disabled={timeRemaining === 0}
                 >
                   <span className="font-medium text-blue-400 mr-2">{option.id})</span>
-                  <span className="text-gray-200">{option.text}</span>
+                  <span className="text-gray-300">{option.text}</span>
                 </button>
               ))}
             </div>
@@ -649,7 +649,7 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
                   <strong>Puan:</strong> {selectedOption?.points}/20 | 
                   <strong className="ml-2">Risk Etkisi:</strong> {(selectedOption?.riskImpact ?? 0) > 0 ? '+' : ''}{selectedOption?.riskImpact ?? 0}
                 </p>
-                <p className="text-sm text-gray-700">{selectedOption?.explanation}</p>
+                <p className="text-sm text-gray-300">{selectedOption?.explanation}</p>
               </div>
 
               {/* Detailed Explanation */}
@@ -689,8 +689,8 @@ export const ClinicalCaseComponent: React.FC<ClinicalCaseProps> = ({
         {/* Hints */}
         {currentDecision.hints && !showExplanation && (
           <div className="bg-gray-100 p-3 rounded-lg">
-            <h5 className="font-medium text-gray-700 mb-2">💡 İpuçları:</h5>
-            <ul className="list-disc list-inside text-sm text-gray-600">
+            <h5 className="font-medium text-gray-300 mb-2">💡 İpuçları:</h5>
+            <ul className="list-disc list-inside text-sm text-gray-400">
               {currentDecision.hints.map((hint, index) => (
                 <li key={index}>{hint}</li>
               ))}

@@ -63,6 +63,7 @@ function App() {
             <Route path="ai-chat" element={<AIChat />} />
             <Route path="progress" element={<Progress />} />
             <Route path="mep" element={<TurkishMEPDashboard />} />
+            <Route path="turkish-mep" element={<TurkishMEPDashboard />} />
             <Route path="analytics" element={<PerformanceAnalytics />} />
             <Route path="virtual-patient" element={<VirtualPatientSimulator />} />
           </Route>

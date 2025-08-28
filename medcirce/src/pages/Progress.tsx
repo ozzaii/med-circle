@@ -13,41 +13,49 @@ import {
   Zap,
 } from 'lucide-react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, XAxis, YAxis, Tooltip, BarChart, Bar } from 'recharts';
+import NeuralNetworkVisualization from '../components/NeuralNetworkVisualization';
 // import { useStore } from '../store';
 
 const Progress = () => {
   // const userProgress = useStore((state) => state.userProgress);
 
-  // Mock data for charts
+  // Calculate overall learning progress
+  const calculateLearningProgress = () => {
+    const totalCompleted = categoryProgress.reduce((acc, cat) => acc + cat.completed, 0);
+    const totalPossible = categoryProgress.reduce((acc, cat) => acc + cat.total, 0);
+    return Math.round((totalCompleted / totalPossible) * 100);
+  };
+
+  // Mock data for charts - Turkish labels
   const skillsData = [
-    { subject: 'Anatomy', score: 85, fullMark: 100 },
-    { subject: 'Physiology', score: 72, fullMark: 100 },
-    { subject: 'Pathology', score: 65, fullMark: 100 },
-    { subject: 'Pharmacology', score: 58, fullMark: 100 },
-    { subject: 'Clinical Skills', score: 78, fullMark: 100 },
-    { subject: 'Emergency Med', score: 45, fullMark: 100 },
+    { subject: 'Anatomi', score: 85, fullMark: 100 },
+    { subject: 'Fizyoloji', score: 72, fullMark: 100 },
+    { subject: 'Patoloji', score: 65, fullMark: 100 },
+    { subject: 'Farmakoloji', score: 58, fullMark: 100 },
+    { subject: 'Klinik Beceriler', score: 78, fullMark: 100 },
+    { subject: 'Acil Tıp', score: 45, fullMark: 100 },
   ];
 
   const weeklyProgress = [
-    { day: 'Mon', hours: 2.5, pages: 45 },
-    { day: 'Tue', hours: 3.2, pages: 58 },
-    { day: 'Wed', hours: 1.8, pages: 32 },
-    { day: 'Thu', hours: 4.1, pages: 73 },
-    { day: 'Fri', hours: 3.5, pages: 62 },
-    { day: 'Sat', hours: 2.9, pages: 51 },
-    { day: 'Sun', hours: 3.7, pages: 66 },
+    { day: 'Pzt', hours: 2.5, pages: 45 },
+    { day: 'Sal', hours: 3.2, pages: 58 },
+    { day: 'Çar', hours: 1.8, pages: 32 },
+    { day: 'Per', hours: 4.1, pages: 73 },
+    { day: 'Cum', hours: 3.5, pages: 62 },
+    { day: 'Cmt', hours: 2.9, pages: 51 },
+    { day: 'Paz', hours: 3.7, pages: 66 },
   ];
 
   const categoryProgress = [
-    { category: 'Anatomy', completed: 45, total: 100 },
-    { category: 'Physiology', completed: 32, total: 100 },
-    { category: 'Pathology', completed: 28, total: 100 },
-    { category: 'Pharmacology', completed: 15, total: 100 },
-    { category: 'Clinical', completed: 52, total: 100 },
+    { category: 'Anatomi', completed: 45, total: 100 },
+    { category: 'Fizyoloji', completed: 32, total: 100 },
+    { category: 'Patoloji', completed: 28, total: 100 },
+    { category: 'Farmakoloji', completed: 15, total: 100 },
+    { category: 'Klinik', completed: 52, total: 100 },
   ];
 
   const achievements = [
-    { id: 1, title: 'Early Bird', description: 'Started studying before 6 AM', icon: Zap, color: 'from-yellow-400 to-orange-500', unlockedAt: new Date('2024-01-15') },
+    { id: 1, title: 'Erken Kalkan', description: 'Sabah 6dan önce çalışmaya başladın', icon: Zap, color: 'from-yellow-400 to-orange-500', unlockedAt: new Date('2024-01-15') },
     { id: 2, title: 'Week Warrior', description: '7-day study streak', icon: Flame, color: 'from-red-500 to-pink-500', unlockedAt: new Date('2024-01-20') },
     { id: 3, title: 'Knowledge Seeker', description: 'Read 5 different books', icon: BookOpen, color: 'from-blue-500 to-cyan-500', unlockedAt: new Date('2024-01-22') },
     { id: 4, title: 'AI Explorer', description: 'Asked 50 questions to AI', icon: Brain, color: 'from-purple-500 to-indigo-500', unlockedAt: new Date('2024-01-25') },
@@ -63,10 +71,10 @@ const Progress = () => {
       {/* Header with stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { icon: Clock, label: 'Total Study Time', value: `${totalStudyHours.toFixed(1)}h`, subtext: 'This week', color: 'from-medical-blue to-medical-cyan' },
-          { icon: Flame, label: 'Current Streak', value: `${currentStreak} days`, subtext: 'Keep it up!', color: 'from-orange-500 to-red-500' },
-          { icon: BookOpen, label: 'Pages Read', value: totalPages, subtext: 'This week', color: 'from-medical-purple to-medical-pink' },
-          { icon: Target, label: 'Completion Rate', value: '67%', subtext: 'All courses', color: 'from-medical-green to-emerald-400' },
+          { icon: Clock, label: 'Toplam Çalışma Süresi', value: `${totalStudyHours.toFixed(1)} saat`, subtext: 'Bu hafta', color: 'from-medical-blue to-medical-cyan' },
+          { icon: Flame, label: 'Güncel Seri', value: `${currentStreak} gün`, subtext: 'Devam et!', color: 'from-orange-500 to-red-500' },
+          { icon: BookOpen, label: 'Okunan Sayfalar', value: totalPages, subtext: 'Bu hafta', color: 'from-medical-purple to-medical-pink' },
+          { icon: Target, label: 'Tamamlanma Oranı', value: '%67', subtext: 'Tüm kurslar', color: 'from-medical-green to-emerald-400' },
         ].map((stat, idx) => {
           const Icon = stat.icon;
           return (
@@ -90,6 +98,25 @@ const Progress = () => {
         })}
       </div>
 
+      {/* Neural Network Visualization */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="glass rounded-xl p-6 border border-white/10"
+      >
+        <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
+          <Brain className="w-5 h-5 text-medical-cyan" />
+          Öğrenme Ağı Görselleştirmesi
+        </h3>
+        <div className="h-96">
+          <NeuralNetworkVisualization 
+            learningProgress={calculateLearningProgress()} 
+            activeConnections={Math.floor(calculateLearningProgress() / 5)}
+          />
+        </div>
+      </motion.div>
+
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Skills Radar Chart */}
@@ -100,7 +127,7 @@ const Progress = () => {
         >
           <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
             <Brain className="w-5 h-5 text-medical-purple" />
-            Skills Overview
+            Beceri Özeti
           </h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -133,7 +160,7 @@ const Progress = () => {
         >
           <h3 className="text-xl font-semibold text-white mb-6 flex items-center gap-2">
             <Activity className="w-5 h-5 text-medical-green" />
-            Weekly Activity
+            Haftalık Aktivite
           </h3>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">

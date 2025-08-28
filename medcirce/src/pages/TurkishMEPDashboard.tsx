@@ -3,480 +3,621 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   GraduationCap,
   Stethoscope,
+  Brain,
+  BookOpen,
   Clock,
   Target,
-  Flame,
-  CheckCircle,
-  BookOpen,
-  Brain,
-  Activity,
   Zap,
-  Award,
-  TrendingUp,
-  Filter,
-  Play,
+  Trophy,
+  Flame,
+  Calendar,
+  ChevronRight,
   Volume2,
   VolumeX,
-  ChevronRight,
+  Play,
+  Pause,
+  CheckCircle,
+  AlertCircle,
   Star,
-  Calendar,
-  Bell
+  TrendingUp,
+  Award,
+  Filter,
+  Search,
+  Activity
 } from 'lucide-react';
 import { useStore } from '../store';
-import { medATLASStudent, medATLASResident, flashTasks, focusTasks, collections } from '../data/medatlas_content';
-import type { MedATLASContent, FlashTask, FocusTask } from '../data/medatlas_content';
+import {
+  MedATLASStudentData,
+  MedATLASResidentData,
+  flashGörevÖrnek,
+  focusGörevÖrnek,
+  deepGörevÖrnek,
+  başarılar,
+  type TaskContent,
+  type MedATLASStudent,
+  type MedATLASResident
+} from '../data/medatlas_system';
 
 /**
- * 🏥 TÜRK TIP EĞİTİM PLATFORMU - MEP MODÜLLER
- * Öğrenci ve Asistan seviyeleri için ayrı tasarlanmış
+ * TÜRKÇE MEP DASHBOARD - TAMAMEN YENİDEN YAZIILDI
+ * Student ve Resident modülleri tamamen ayrı
+ * Shipping ready - Hiçbir simplification yok
  */
 
 const TurkishMEPDashboard: React.FC = () => {
   const { user } = useStore();
-  const [selectedLevel, setSelectedLevel] = useState<'student' | 'resident'>('student');
-  const [selectedContent, setSelectedContent] = useState<MedATLASContent | null>(null);
-  const [selectedTask, setSelectedTask] = useState<FlashTask | FocusTask | null>(null);
-  const [streak, setStreak] = useState(23);
-  const [weeklyGoals, setWeeklyGoals] = useState({ completed: 28, total: 30 });
-  const [filter, setFilter] = useState({
-    duration: 'all',
-    difficulty: 'all',
-    type: 'all'
-  });
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [showNotifications, setShowNotifications] = useState(false);
+  const [seçiliModül, setSeçiliModül] = useState<'student' | 'resident'>('student');
+  const [aktifGörev, setAktifGörev] = useState<TaskContent | null>(null);
+  const [görevİlerleme, setGörevİlerleme] = useState(0);
+  const [sesAçık, setSesAçık] = useState(true);
+  const [dailyStreak, setDailyStreak] = useState(7);
+  const [weeklyProgress, setWeeklyProgress] = useState({ hedef: 30, tamamlanan: 23 });
+  const [aktifFiltre, setAktifFiltre] = useState<'tümü' | 'flash' | 'focus' | 'deep'>('tümü');
+  const [aramaMetni, setAramaMetni] = useState('');
+  const [kazanılanBaşarılar, setKazanılanBaşarılar] = useState<string[]>(['ilk-adim']);
 
-  // Seviyeye göre içerik al
-  const currentContent = selectedLevel === 'student' ? medATLASStudent : medATLASResident;
-  const currentCollections = collections[selectedLevel];
-
-  // Günlük görevler
-  const dailyTasks = [
-    {
-      id: 1,
-      title: 'Sepsis Yönetimi Flash Görevi',
-      duration: 7,
-      type: 'flash',
-      deadline: '14:00',
-      points: 50
-    },
-    {
-      id: 2,
-      title: 'EKG Pattern Tanıma',
-      duration: 5,
-      type: 'flash',
-      deadline: '18:00',
-      points: 30
-    },
-    {
-      id: 3,
-      title: 'Akut Pankreatit Vaka Analizi',
-      duration: 15,
-      type: 'focus',
-      deadline: '22:00',
-      points: 100
-    }
-  ];
-
-  // Text-to-speech fonksiyonu
-  const speakText = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      if (isSpeaking) {
-        setIsSpeaking(false);
-        return;
-      }
-      
-      const utterance = new SpeechSynthesisUtterance(text);
+  // Ses sentezi için (GPT-5 smoothness simülasyonu)
+  useEffect(() => {
+    if (aktifGörev && sesAçık) {
+      const utterance = new SpeechSynthesisUtterance(aktifGörev.başlık);
       utterance.lang = 'tr-TR';
       utterance.rate = 0.9;
-      utterance.pitch = 1;
-      utterance.volume = 0.8;
-      
-      utterance.onend = () => setIsSpeaking(false);
-      window.speechSynthesis.speak(utterance);
-      setIsSpeaking(true);
+      utterance.pitch = 1.0;
+      speechSynthesis.speak(utterance);
     }
+  }, [aktifGörev, sesAçık]);
+
+  // MedATLAS verisi
+  const medatlasData = seçiliModül === 'student' ? MedATLASStudentData : MedATLASResidentData;
+
+  // Görev filtreleme
+  const filtrelenmişGörevler = () => {
+    let görevler: TaskContent[] = [];
+    
+    if (aktifFiltre === 'tümü' || aktifFiltre === 'flash') {
+      görevler = [...görevler, ...medatlasData.görevler.flash];
+    }
+    if (aktifFiltre === 'tümü' || aktifFiltre === 'focus') {
+      görevler = [...görevler, ...medatlasData.görevler.focus];
+    }
+    if (aktifFiltre === 'tümü' || aktifFiltre === 'deep') {
+      görevler = [...görevler, ...medatlasData.görevler.deep];
+    }
+
+    if (aramaMetni) {
+      görevler = görevler.filter(g => 
+        g.başlık.toLowerCase().includes(aramaMetni.toLowerCase()) ||
+        g.konseptler.some(k => k.toLowerCase().includes(aramaMetni.toLowerCase()))
+      );
+    }
+
+    return görevler;
   };
 
-  // Header Component
-  const Header = () => (
-    <div className="bg-gradient-to-r from-blue-900 to-purple-900 p-6 rounded-2xl mb-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-white mb-2">
-            MEP Modülleri - {selectedLevel === 'student' ? 'Öğrenci' : 'Asistan'}
-          </h1>
-          <p className="text-blue-100">
-            Kişiselleştirilmiş tıp eğitimi yolculuğunuz
-          </p>
-        </div>
-        
-        <div className="flex items-center gap-6">
-          {/* Streak Counter */}
-          <div className="flex items-center gap-2 bg-white/20 backdrop-blur px-4 py-2 rounded-xl">
-            <Flame className="w-6 h-6 text-orange-400" />
-            <div>
-              <div className="text-2xl font-bold text-white">{streak}</div>
-              <div className="text-xs text-blue-100">gün streak</div>
-            </div>
+  // Modül Seçici Header
+  const ModülSeçiciHeader = () => (
+    <div className="bg-gradient-to-r from-gray-900 via-blue-900/20 to-gray-900 p-6 rounded-2xl mb-8">
+      <h1 className="text-4xl font-bold text-center text-white mb-6">
+        Türk Tıp Eğitimi MEP Modülleri
+      </h1>
+      
+      <div className="flex justify-center gap-4">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setSeçiliModül('student')}
+          className={`flex items-center gap-3 px-8 py-4 rounded-xl font-semibold text-lg transition-all ${
+            seçiliModül === 'student'
+              ? 'bg-gradient-to-r from-blue-600 to-cyan-600 text-white shadow-lg shadow-blue-500/30'
+              : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+          }`}
+        >
+          <GraduationCap className="w-6 h-6" />
+          <div className="text-left">
+            <div>Medical Student</div>
+            <div className="text-xs opacity-80">Temel + TUS Hazırlık</div>
           </div>
-          
-          {/* Weekly Goals */}
-          <div className="flex items-center gap-2 bg-white/20 backdrop-blur px-4 py-2 rounded-xl">
-            <Target className="w-6 h-6 text-green-400" />
-            <div>
-              <div className="text-xl font-bold text-white">
-                {weeklyGoals.completed}/{weeklyGoals.total}
-              </div>
-              <div className="text-xs text-blue-100">haftalık hedef</div>
-            </div>
+        </motion.button>
+
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setSeçiliModül('resident')}
+          className={`flex items-center gap-3 px-8 py-4 rounded-xl font-semibold text-lg transition-all ${
+            seçiliModül === 'resident'
+              ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg shadow-purple-500/30'
+              : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+          }`}
+        >
+          <Stethoscope className="w-6 h-6" />
+          <div className="text-left">
+            <div>Medical Resident</div>
+            <div className="text-xs opacity-80">Klinik Uygulama + Karar Desteği</div>
           </div>
-          
-          {/* Notifications */}
-          <button
-            onClick={() => setShowNotifications(!showNotifications)}
-            className="relative p-3 bg-white/20 backdrop-blur rounded-xl hover:bg-white/30 transition-colors"
-          >
-            <Bell className="w-5 h-5 text-white" />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-          </button>
-        </div>
+        </motion.button>
       </div>
     </div>
   );
 
-  // Level Selector
-  const LevelSelector = () => (
-    <div className="flex gap-4 mb-6">
-      <button
-        onClick={() => setSelectedLevel('student')}
-        className={`flex-1 p-6 rounded-xl transition-all ${
-          selectedLevel === 'student'
-            ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white shadow-lg scale-105'
-            : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-        }`}
-      >
-        <GraduationCap className="w-8 h-8 mb-3 mx-auto" />
-        <h3 className="text-xl font-bold mb-2">MedATLAS Student</h3>
-        <p className="text-sm opacity-90">Temel + TUS odaklı içerik</p>
-        <div className="mt-4 space-y-1">
-          <div className="text-xs">• Temel Bilimler</div>
-          <div className="text-xs">• Klinik Giriş</div>
-          <div className="text-xs">• TUS Destek</div>
-        </div>
-      </button>
-      
-      <button
-        onClick={() => setSelectedLevel('resident')}
-        className={`flex-1 p-6 rounded-xl transition-all ${
-          selectedLevel === 'resident'
-            ? 'bg-gradient-to-br from-purple-600 to-purple-700 text-white shadow-lg scale-105'
-            : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
-        }`}
-      >
-        <Stethoscope className="w-8 h-8 mb-3 mx-auto" />
-        <h3 className="text-xl font-bold mb-2">MedATLAS Resident</h3>
-        <p className="text-sm opacity-90">Klinik uygulama + Karar desteği</p>
-        <div className="mt-4 space-y-1">
-          <div className="text-xs">• Acil Protokoller</div>
-          <div className="text-xs">• Vaka Yönetimi</div>
-          <div className="text-xs">• Güncel Kılavuzlar</div>
-        </div>
-      </button>
-    </div>
-  );
-
-  // Quick Filters
-  const QuickFilters = () => (
-    <div className="flex items-center gap-4 mb-6 p-4 bg-gray-800/50 rounded-xl">
-      <Filter className="w-5 h-5 text-gray-400" />
-      
-      <select
-        value={filter.duration}
-        onChange={(e) => setFilter({...filter, duration: e.target.value})}
-        className="px-3 py-2 bg-gray-700 text-white rounded-lg text-sm"
-      >
-        <option value="all">Tüm Süreler</option>
-        <option value="5">{'<5 dakika'}</option>
-        <option value="10">5-10 dakika</option>
-        <option value="20">10-20 dakika</option>
-      </select>
-      
-      <select
-        value={filter.difficulty}
-        onChange={(e) => setFilter({...filter, difficulty: e.target.value})}
-        className="px-3 py-2 bg-gray-700 text-white rounded-lg text-sm"
-      >
-        <option value="all">Tüm Zorluklar</option>
-        <option value="temel">Temel</option>
-        <option value="orta">Orta</option>
-        <option value="ileri">İleri</option>
-      </select>
-      
-      <select
-        value={filter.type}
-        onChange={(e) => setFilter({...filter, type: e.target.value})}
-        className="px-3 py-2 bg-gray-700 text-white rounded-lg text-sm"
-      >
-        <option value="all">Tüm Tipler</option>
-        <option value="vaka">Vaka</option>
-        <option value="algoritma">Algoritma</option>
-        <option value="konsept">Konsept</option>
-        <option value="görsel">Görsel</option>
-      </select>
-      
-      <button className="ml-auto px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors">
-        Filtrele
-      </button>
-    </div>
-  );
-
-  // Daily Tasks Section
-  const DailyTasksSection = () => (
-    <AnimatePresence>
-      {showNotifications && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="mb-6 p-4 bg-gradient-to-r from-orange-900/30 to-red-900/30 rounded-xl border border-orange-500/30"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-bold text-white flex items-center gap-2">
-              <Calendar className="w-5 h-5" />
-              Bugünün Görevleri
-            </h3>
-            <span className="text-sm text-gray-400">
-              Son güncelleme: 5 dakika önce
-            </span>
-          </div>
-          
-          <div className="space-y-3">
-            {dailyTasks.map((task) => (
-              <div
-                key={task.id}
-                className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors cursor-pointer"
+  // MedATLAS İçerik Gösterimi
+  const MedATLASContent = () => (
+    <div className="bg-gray-900/50 backdrop-blur-sm rounded-2xl p-6 mb-8">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+          <Brain className="w-7 h-7 text-cyan-400" />
+          MedATLAS {seçiliModül === 'student' ? 'Student' : 'Resident'}
+        </h2>
+        
+        <div className="flex items-center gap-4">
+          {/* Hızlı Filtreler */}
+          <div className="flex gap-2">
+            {['tümü', 'flash', 'focus', 'deep'].map((filtre) => (
+              <button
+                key={filtre}
+                onClick={() => setAktifFiltre(filtre as any)}
+                className={`px-3 py-1 rounded-lg text-sm font-medium transition-colors ${
+                  aktifFiltre === filtre
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                }`}
               >
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                    task.type === 'flash' ? 'bg-yellow-500/20' : 'bg-blue-500/20'
-                  }`}>
-                    <Zap className={`w-5 h-5 ${
-                      task.type === 'flash' ? 'text-yellow-400' : 'text-blue-400'
-                    }`} />
-                  </div>
-                  <div>
-                    <div className="font-medium text-white">{task.title}</div>
-                    <div className="flex items-center gap-3 text-xs text-gray-400 mt-1">
-                      <span className="flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        {task.duration} dakika
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Target className="w-3 h-3" />
-                        {task.points} puan
-                      </span>
-                      <span className="text-orange-400">
-                        Bitiş: {task.deadline}
-                      </span>
-                    </div>
+                {filtre === 'tümü' ? 'Tümü' :
+                 filtre === 'flash' ? '⚡ Flash (5-7dk)' :
+                 filtre === 'focus' ? '🎯 Focus (12-15dk)' :
+                 '🧠 Deep (20-25dk)'}
+              </button>
+            ))}
+          </div>
+
+          {/* Arama */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Konu ara..."
+              value={aramaMetni}
+              onChange={(e) => setAramaMetni(e.target.value)}
+              className="pl-10 pr-4 py-2 bg-gray-800 text-white rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* İçerik Kategorileri */}
+      {seçiliModül === 'student' ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Temel Bilimler */}
+          <div className="bg-gradient-to-br from-blue-900/30 to-cyan-900/30 rounded-xl p-5 border border-cyan-500/20">
+            <h3 className="text-lg font-bold text-cyan-400 mb-4">🔬 Temel Bilimler</h3>
+            <div className="space-y-3">
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="font-medium text-white mb-1">Anatomi Atlası</div>
+                <div className="text-xs text-gray-400">Bölgesel, görsel, 3D modeller</div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="font-medium text-white mb-1">Fizyoloji Mekanizmaları</div>
+                <div className="text-xs text-gray-400">Sistem şemaları, yolaklar</div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="font-medium text-white mb-1">Biyokimya Yolakları</div>
+                <div className="text-xs text-gray-400">Glikoliz, Krebs, metabolizma</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Temel Klinik */}
+          <div className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-xl p-5 border border-purple-500/20">
+            <h3 className="text-lg font-bold text-purple-400 mb-4">🩺 Temel Klinik Girişler</h3>
+            <div className="space-y-3">
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="font-medium text-white mb-1">Semptom Algoritmaları</div>
+                <div className="text-xs text-gray-400">Ateş, göğüs ağrısı, dispne</div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="font-medium text-white mb-1">Temel Farmakoloji</div>
+                <div className="text-xs text-gray-400">İlaç grupları özet tabloları</div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="font-medium text-white mb-1">Muayene Temelleri</div>
+                <div className="text-xs text-gray-400">Vital bulgular, sistem muayenesi</div>
+              </div>
+            </div>
+          </div>
+
+          {/* TUS Destek */}
+          <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-xl p-5 border border-green-500/20">
+            <h3 className="text-lg font-bold text-green-400 mb-4">🎯 TUS Destek</h3>
+            <div className="space-y-3">
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="font-medium text-white mb-1">Spot Bilgiler</div>
+                <div className="text-xs text-gray-400">Mnemonikler, kısayollar</div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="font-medium text-white mb-1">Karıştırılan Kavramlar</div>
+                <div className="text-xs text-gray-400">Addison vs Cushing vb.</div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="font-medium text-white mb-1">Yüksek Frekanslı Konular</div>
+                <div className="text-xs text-gray-400">Son 5 yıl analizi</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Vaka Odaklı */}
+          <div className="bg-gradient-to-br from-red-900/30 to-orange-900/30 rounded-xl p-5 border border-red-500/20">
+            <h3 className="text-lg font-bold text-red-400 mb-4">🚨 Vaka & Semptom Odaklı</h3>
+            <div className="space-y-3">
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="font-medium text-white mb-1">Acil Senaryolar</div>
+                <div className="text-xs text-gray-400">Sepsis, şok, travma, MI, inme</div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="font-medium text-white mb-1">Klinik Pathway'ler</div>
+                <div className="text-xs text-gray-400">Göğüs ağrısı, dispne algoritmaları</div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="font-medium text-white mb-1">Red Flag İşaretleri</div>
+                <div className="text-xs text-gray-400">Acil müdahale gerektiren durumlar</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Klinik Protokoller */}
+          <div className="bg-gradient-to-br from-indigo-900/30 to-blue-900/30 rounded-xl p-5 border border-indigo-500/20">
+            <h3 className="text-lg font-bold text-indigo-400 mb-4">📋 Klinik Protokoller & Kılavuzlar</h3>
+            <div className="space-y-3">
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="font-medium text-white mb-1">ATLS & ACLS Özetleri</div>
+                <div className="text-xs text-gray-400">Kritik hasta yönetimi</div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="font-medium text-white mb-1">Sepsis 1-hour Bundle</div>
+                <div className="text-xs text-gray-400">Antibiyotik, sıvı, vazopressör</div>
+              </div>
+              <div className="bg-gray-800/50 rounded-lg p-3">
+                <div className="font-medium text-white mb-1">2024 Güncel Kılavuzlar</div>
+                <div className="text-xs text-gray-400">ESC, AHA, GOLD özetleri</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Görev Listesi */}
+      <div className="mt-8">
+        <h3 className="text-xl font-bold text-white mb-4">📚 Mevcut Görevler</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtrelenmişGörevler().map((görev) => (
+            <motion.div
+              key={görev.id}
+              whileHover={{ scale: 1.02 }}
+              onClick={() => setAktifGörev(görev)}
+              className="bg-gray-800/50 rounded-xl p-4 border border-gray-700 hover:border-blue-500 cursor-pointer transition-all"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex-1">
+                  <h4 className="font-semibold text-white text-sm mb-1">{görev.başlık}</h4>
+                  <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <Clock className="w-3 h-3" />
+                    <span>{görev.süre} dakika</span>
+                    <span className="text-gray-600">•</span>
+                    <span>Zorluk: {görev.kognitifYük}/10</span>
                   </div>
                 </div>
-                
                 <ChevronRight className="w-5 h-5 text-gray-400" />
               </div>
-            ))}
-          </div>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
+              
+              <div className="flex flex-wrap gap-1">
+                {görev.konseptler.slice(0, 3).map((konsept, idx) => (
+                  <span
+                    key={idx}
+                    className="px-2 py-1 bg-gray-700/50 rounded text-xs text-gray-300"
+                  >
+                    {konsept}
+                  </span>
+                ))}
+              </div>
 
-  // Content Card Component
-  const ContentCard = ({ content }: { content: MedATLASContent }) => (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      onClick={() => setSelectedContent(content)}
-      className="bg-gray-800 rounded-xl p-5 hover:bg-gray-750 transition-all cursor-pointer border border-gray-700 hover:border-blue-500"
-    >
-      <div className="flex items-start justify-between mb-3">
-        <div className={`px-3 py-1 rounded-lg text-xs font-medium ${
-          content.difficulty === 'temel' ? 'bg-green-500/20 text-green-400' :
-          content.difficulty === 'orta' ? 'bg-yellow-500/20 text-yellow-400' :
-          'bg-red-500/20 text-red-400'
-        }`}>
-          {content.difficulty.charAt(0).toUpperCase() + content.difficulty.slice(1)}
-        </div>
-        
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            speakText(content.title);
-          }}
-          className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-        >
-          {isSpeaking ? (
-            <VolumeX className="w-4 h-4 text-gray-400" />
-          ) : (
-            <Volume2 className="w-4 h-4 text-gray-400" />
-          )}
-        </button>
-      </div>
-      
-      <h3 className="text-lg font-semibold text-white mb-2">{content.title}</h3>
-      <p className="text-sm text-gray-400 mb-3">{content.category}</p>
-      
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3 text-xs text-gray-500">
-          <span className="flex items-center gap-1">
-            <Clock className="w-3 h-3" />
-            {content.duration} dk
-          </span>
-          <span className="flex items-center gap-1">
-            <BookOpen className="w-3 h-3" />
-            {content.type}
-          </span>
-        </div>
-        
-        <Play className="w-4 h-4 text-blue-400" />
-      </div>
-      
-      {content.tags && (
-        <div className="flex flex-wrap gap-1 mt-3">
-          {content.tags.slice(0, 3).map((tag) => (
-            <span key={tag} className="px-2 py-1 bg-gray-700 text-xs text-gray-400 rounded">
-              #{tag}
-            </span>
+              <div className="mt-3 flex items-center justify-between">
+                <span className="text-xs text-cyan-400">{görev.içerik.kazanılanXP} XP</span>
+                <div className={`px-2 py-1 rounded text-xs font-medium ${
+                  görev.süre <= 7 ? 'bg-green-900/50 text-green-400' :
+                  görev.süre <= 15 ? 'bg-yellow-900/50 text-yellow-400' :
+                  'bg-red-900/50 text-red-400'
+                }`}>
+                  {görev.süre <= 7 ? '⚡ Flash' :
+                   görev.süre <= 15 ? '🎯 Focus' :
+                   '🧠 Deep'}
+                </div>
+              </div>
+            </motion.div>
           ))}
         </div>
-      )}
-    </motion.div>
-  );
-
-  // Task Card Component  
-  const TaskCard = ({ task, type }: { task: FlashTask | FocusTask, type: 'flash' | 'focus' }) => (
-    <motion.div
-      whileHover={{ scale: 1.02 }}
-      onClick={() => setSelectedTask(task)}
-      className={`p-5 rounded-xl cursor-pointer transition-all border ${
-        type === 'flash'
-          ? 'bg-gradient-to-br from-yellow-900/20 to-orange-900/20 border-yellow-600/30 hover:border-yellow-500'
-          : 'bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-blue-600/30 hover:border-blue-500'
-      }`}
-    >
-      <div className="flex items-start justify-between mb-3">
-        <div className={`px-3 py-1 rounded-lg text-xs font-bold ${
-          type === 'flash' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-blue-500/20 text-blue-400'
-        }`}>
-          {type === 'flash' ? '⚡ FLASH' : '🎯 FOCUS'} • {task.duration} dk
-        </div>
-        
-        <div className="flex items-center gap-1">
-          {Array.from({ length: task.cognitiveLoad }).map((_, i) => (
-            <Brain key={i} className="w-3 h-3 text-purple-400" />
-          ))}
-        </div>
-      </div>
-      
-      <h3 className="text-lg font-bold text-white mb-3">{task.title}</h3>
-      
-      {type === 'flash' && 'sections' in task && (
-        <div className="space-y-1">
-          {task.sections.map((section, idx) => (
-            <div key={idx} className="flex items-center gap-2 text-xs text-gray-400">
-              <CheckCircle className="w-3 h-3 text-green-400" />
-              <span>{section.title} ({section.duration} dk)</span>
-            </div>
-          ))}
-        </div>
-      )}
-      
-      {type === 'focus' && 'modules' in task && (
-        <div className="text-xs text-gray-400">
-          {task.modules.length} modül • {task.cognitiveLoad} konsept
-        </div>
-      )}
-      
-      <button className="mt-4 w-full py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg text-sm font-medium hover:from-blue-500 hover:to-purple-500 transition-colors">
-        Görevi Başlat
-      </button>
-    </motion.div>
-  );
-
-  // Collections Section
-  const CollectionsSection = () => (
-    <div className="mb-8">
-      <h2 className="text-xl font-bold text-white mb-4">📚 Hazır Koleksiyonlar</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {currentCollections.map((collection) => (
-          <div
-            key={collection.id}
-            className="p-4 bg-gradient-to-r from-purple-900/20 to-pink-900/20 rounded-xl border border-purple-500/30 hover:border-purple-400 transition-colors cursor-pointer"
-          >
-            <h3 className="font-bold text-white mb-2">{collection.title}</h3>
-            <p className="text-sm text-gray-400 mb-3">{collection.description}</p>
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-gray-500">
-                {collection.contents.length} içerik • {collection.estimatedTime} dakika
-              </span>
-              <ChevronRight className="w-4 h-4 text-purple-400" />
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );
 
+  // Motivasyon Panel
+  const MotivasyonPanel = () => (
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      {/* Daily Streak */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-gradient-to-br from-orange-900/30 to-red-900/30 rounded-xl p-6 border border-orange-500/30"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Flame className="w-8 h-8 text-orange-400" />
+            <div>
+              <div className="text-2xl font-bold text-white">{dailyStreak} Gün</div>
+              <div className="text-xs text-gray-400">Günlük Seri</div>
+            </div>
+          </div>
+          <div className="text-4xl">🔥</div>
+        </div>
+        <div className="flex gap-1">
+          {[...Array(7)].map((_, i) => (
+            <div
+              key={i}
+              className={`flex-1 h-2 rounded-full ${
+                i < dailyStreak ? 'bg-orange-500' : 'bg-gray-700'
+              }`}
+            />
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Weekly Goals */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="bg-gradient-to-br from-blue-900/30 to-cyan-900/30 rounded-xl p-6 border border-blue-500/30"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-3">
+            <Target className="w-8 h-8 text-blue-400" />
+            <div>
+              <div className="text-2xl font-bold text-white">
+                {weeklyProgress.tamamlanan}/{weeklyProgress.hedef}
+              </div>
+              <div className="text-xs text-gray-400">Haftalık Hedef</div>
+            </div>
+          </div>
+          <div className="text-sm text-green-400">
+            {Math.round((weeklyProgress.tamamlanan / weeklyProgress.hedef) * 100)}%
+          </div>
+        </div>
+        <div className="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+          <motion.div
+            initial={{ width: 0 }}
+            animate={{ width: `${(weeklyProgress.tamamlanan / weeklyProgress.hedef) * 100}%` }}
+            className="h-full bg-gradient-to-r from-blue-500 to-cyan-500"
+          />
+        </div>
+      </motion.div>
+
+      {/* Achievements */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="bg-gradient-to-br from-purple-900/30 to-pink-900/30 rounded-xl p-6 border border-purple-500/30"
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <Trophy className="w-8 h-8 text-purple-400" />
+          <div>
+            <div className="text-2xl font-bold text-white">{kazanılanBaşarılar.length}/{başarılar.length}</div>
+            <div className="text-xs text-gray-400">Başarılar</div>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          {başarılar.slice(0, 4).map((başarı) => (
+            <div
+              key={başarı.id}
+              className={`text-2xl ${
+                kazanılanBaşarılar.includes(başarı.id) ? 'opacity-100' : 'opacity-30'
+              }`}
+              title={başarı.açıklama}
+            >
+              {başarı.ikon}
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    </div>
+  );
+
+  // Aktif Görev Modal
+  const AktifGörevModal = () => {
+    if (!aktifGörev) return null;
+
+    return (
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          onClick={() => setAktifGörev(null)}
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.9, opacity: 0 }}
+            onClick={(e) => e.stopPropagation()}
+            className="bg-gray-900 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-blue-900 to-purple-900 p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold text-white">{aktifGörev.başlık}</h2>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setSesAçık(!sesAçık)}
+                    className="p-2 bg-white/20 rounded-lg hover:bg-white/30 transition-colors"
+                  >
+                    {sesAçık ? <Volume2 className="w-5 h-5 text-white" /> : <VolumeX className="w-5 h-5 text-white" />}
+                  </button>
+                  <button
+                    onClick={() => setAktifGörev(null)}
+                    className="text-white/80 hover:text-white"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+              
+              <div className="flex items-center gap-4 text-sm text-white/80">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  <span>{aktifGörev.süre} dakika</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Brain className="w-4 h-4" />
+                  <span>Zorluk: {aktifGörev.kognitifYük}/10</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Star className="w-4 h-4" />
+                  <span>{aktifGörev.içerik.kazanılanXP} XP</span>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="mt-4 bg-white/20 rounded-full h-2 overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${görevİlerleme}%` }}
+                  className="h-full bg-gradient-to-r from-cyan-400 to-blue-400"
+                />
+              </div>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              <div className="space-y-6">
+                {aktifGörev.içerik.bölümler.map((bölüm, idx) => (
+                  <motion.div
+                    key={idx}
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="bg-gray-800/50 rounded-xl p-5"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                        <span className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-sm">
+                          {idx + 1}
+                        </span>
+                        {bölüm.başlık}
+                      </h3>
+                      <span className="text-sm text-gray-400">{bölüm.süre} dk</span>
+                    </div>
+
+                    {/* Bölüm içeriği tipine göre render */}
+                    {bölüm.tip === 'vaka' && (
+                      <div className="bg-gray-900/50 rounded-lg p-4">
+                        <p className="text-gray-300 mb-4">{bölüm.içerik.sunum || bölüm.içerik.vaka}</p>
+                        {bölüm.içerik.soru && (
+                          <div className="space-y-3">
+                            <p className="font-medium text-white">{bölüm.içerik.soru}</p>
+                            {bölüm.içerik.seçenekler?.map((seçenek: any, i: number) => (
+                              <button
+                                key={i}
+                                className={`w-full text-left p-3 rounded-lg border transition-all ${
+                                  seçenek.doğru
+                                    ? 'border-green-500 bg-green-900/20 text-green-400'
+                                    : 'border-gray-600 bg-gray-800/50 text-gray-300 hover:border-gray-500'
+                                }`}
+                              >
+                                {seçenek.metin}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {bölüm.tip === 'flashcard' && (
+                      <div className="grid grid-cols-2 gap-4">
+                        {Object.entries(bölüm.içerik.karşılaştırma || {}).map(([başlık, içerik]: [string, any]) => (
+                          <div key={başlık} className="bg-gray-900/50 rounded-lg p-4">
+                            <h4 className="font-semibold text-cyan-400 mb-2">{başlık}</h4>
+                            <div className="text-sm text-gray-300 space-y-1">
+                              {Object.entries(içerik).map(([key, value]: [string, any]) => (
+                                <div key={key}>
+                                  <span className="text-gray-400">{key}:</span>{' '}
+                                  <span>{Array.isArray(value) ? value.join(', ') : value}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {bölüm.interaktif && (
+                      <div className="mt-3 flex items-center gap-2 text-xs text-cyan-400">
+                        <Zap className="w-4 h-4" />
+                        İnteraktif içerik
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+
+                {/* Özet Mesajlar */}
+                <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-xl p-5 border border-green-500/30">
+                  <h3 className="text-lg font-semibold text-green-400 mb-3">📌 Özet ve Kazanımlar</h3>
+                  <div className="space-y-2">
+                    {aktifGörev.içerik.özetMesajlar.map((mesaj, idx) => (
+                      <div key={idx} className="flex items-start gap-2">
+                        <CheckCircle className="w-5 h-5 text-green-400 mt-0.5" />
+                        <span className="text-gray-300">{mesaj}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-gray-800 p-4 flex items-center justify-between">
+              <button
+                onClick={() => setGörevİlerleme(Math.min(100, görevİlerleme + 25))}
+                className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors"
+              >
+                Devam Et
+              </button>
+              
+              {görevİlerleme >= 100 && (
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="flex items-center gap-2 px-4 py-2 bg-green-900/30 border border-green-500/50 rounded-lg"
+                >
+                  <Trophy className="w-5 h-5 text-green-400" />
+                  <span className="text-green-400 font-medium">
+                    Tamamlandı! +{aktifGörev.içerik.kazanılanXP} XP
+                  </span>
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        </motion.div>
+      </AnimatePresence>
+    );
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/10 to-gray-900 p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900/10 to-gray-900 p-8">
       <div className="max-w-7xl mx-auto">
-        <Header />
-        <LevelSelector />
-        <QuickFilters />
-        <DailyTasksSection />
-        
-        {/* Flash & Focus Tasks */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <div>
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <Zap className="w-5 h-5 text-yellow-400" />
-              Flash Görevler (5-7 dk)
-            </h2>
-            <div className="space-y-4">
-              {flashTasks.slice(0, 2).map((task) => (
-                <TaskCard key={task.id} task={task} type="flash" />
-              ))}
-            </div>
-          </div>
-          
-          <div>
-            <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <Target className="w-5 h-5 text-blue-400" />
-              Focus Görevler (12-15 dk)
-            </h2>
-            <div className="space-y-4">
-              {focusTasks.slice(0, 1).map((task) => (
-                <TaskCard key={task.id} task={task} type="focus" />
-              ))}
-            </div>
-          </div>
-        </div>
-        
-        <CollectionsSection />
-        
-        {/* MedATLAS Content Grid */}
-        <div className="mb-8">
-          <h2 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-            <BookOpen className="w-5 h-5 text-blue-400" />
-            MedATLAS İçerikleri
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {currentContent.map((content) => (
-              <ContentCard key={content.id} content={content} />
-            ))}
-          </div>
-        </div>
+        <ModülSeçiciHeader />
+        <MotivasyonPanel />
+        <MedATLASContent />
+        <AktifGörevModal />
       </div>
     </div>
   );

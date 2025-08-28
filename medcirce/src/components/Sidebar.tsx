@@ -21,7 +21,7 @@ const Sidebar = () => {
     { path: '/', label: 'Ana Sayfa', icon: Home },
     { path: '/library', label: 'Kütüphane', icon: BookOpen },
     { path: '/reader', label: 'Okuyucu', icon: BookOpen },
-    { path: '/mep', label: 'MEP Modülleri', icon: GraduationCap },
+    { path: '/turkish-mep', label: 'MEP Modülleri', icon: GraduationCap },
     { path: '/virtual-patient', label: 'Sanal Hasta', icon: Stethoscope },
     { path: '/ai-chat', label: 'AI Asistan', icon: MessageSquare },
     { path: '/progress', label: 'Öğrenme Analitiği', icon: BarChart3 },
@@ -48,8 +48,8 @@ const Sidebar = () => {
             </div>
           </div>
           <div>
-            <h2 className="text-xl font-bold text-gradient">MedAI</h2>
-            <p className="text-xs text-gray-400">Education Platform</p>
+            <h2 className="text-xl font-bold text-gradient">MedCircle</h2>
+            <p className="text-xs text-gray-400">Türk Tıp Eğitimi</p>
           </div>
         </div>
       </div>
@@ -74,13 +74,13 @@ const Sidebar = () => {
                 <>
                   <Icon className={`w-5 h-5 ${isActive ? 'text-medical-blue' : ''}`} />
                   <span className="font-medium">{item.label}</span>
-                  {item.label === 'AI Assistant' && (
+                  {item.label === 'AI Asistan' && (
                     <Sparkles className="w-4 h-4 ml-auto text-medical-cyan animate-pulse" />
                   )}
-                  {item.label === 'MEP Modules' && (
+                  {item.label === 'MEP Modülleri' && (
                     <div className="ml-auto">
                       <span className="text-xs bg-medical-blue/20 text-medical-blue px-2 py-1 rounded-full">
-                        NEW
+                        YENİ
                       </span>
                     </div>
                   )}
@@ -110,7 +110,7 @@ const Sidebar = () => {
           className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors"
         >
           <LogOut className="w-4 h-4" />
-          <span className="text-sm font-medium">Logout</span>
+          <span className="text-sm font-medium">Çıkış</span>
         </motion.button>
       </div>
 
@@ -119,10 +119,10 @@ const Sidebar = () => {
         <div className="p-3 rounded-xl bg-gradient-to-r from-medical-purple/20 to-medical-pink/20 border border-medical-purple/30">
           <div className="flex items-center gap-2 mb-1">
             <Sparkles className="w-4 h-4 text-medical-pink" />
-            <span className="text-xs font-semibold text-white">POC Version</span>
+            <span className="text-xs font-semibold text-white">Türk Tıp Eğitimi</span>
           </div>
           <p className="text-xs text-gray-300">
-            Experience the future of medical education
+            Tıp eğitiminin geleceğini deneyimle
           </p>
         </div>
       </div>

@@ -1,6 +1,31 @@
-# Project: MedCircle - Revolutionary Turkish Medical AI Education Platform 🚨
+# MedCircle - Türk Tıp Eğitimi AI Platformu 🚨
 
-This repository contains the world's first BULLETPROOF Turkish Medical AI Education Platform with NASA-grade architecture, built with React 19, TypeScript, and revolutionary AI-powered clinical case simulations.
+## 🔴 KRİTİK KURALLAR - HER ZAMAN UYULMASI ZORUNLU
+
+### TÜRKÇE DİL KURALLARI
+- **TÜM SAYFA BAŞTAN SONA TÜRKÇE OLMALIDIR**
+- Sadece modül isimleri ve özel isimler İngilizce kalabilir (MedATLAS, MedRESIDENT vb.)
+- Başlıklar, içerik, sesli betimleme, butonlar, açıklamalar - HER ŞEY akıcı Türkçe
+- Tıbbi terimler Türkçe, gerekirse parantez içinde İngilizce karşılığı
+
+### MODÜL AYRIM KURALLARI
+- **MEP MODULES altında Medical Student ve Medical Resident TAMAMEN AYRI gösterilmeli**
+- Her modülün kendi MedATLAS'ı olmalı
+- Student: Temel + TUS odaklı içerik
+- Resident: Vaka tabanlı + Klinik karar desteği
+
+### KALİTE KURALLARI  
+- **HİÇBİR ŞEY SIMPLIFY EDİLMEYECEK**
+- **HER ŞEY SHIPPING READY OLMALI**
+- Tüm özellikler tam fonksiyonel
+- Performans optimize edilmiş
+- Hata yönetimi eksiksiz
+
+Bu kurallar ZORLA DAYATILACAK. İhlal edilemez.
+
+---
+
+Dünyanın ilk KUSURSUZ Türk Tıp Eğitimi AI Platformu - NASA kalitesinde mimari, React 19, TypeScript ve devrim niteliğinde AI destekli klinik vaka simülasyonları.
 
 ## 🚀 PRODUCTION-READY SYSTEM - ALL PHASES COMPLETED
 
