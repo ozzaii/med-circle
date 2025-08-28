@@ -32,7 +32,7 @@ export interface MedATLASStudent {
   başlıklar: {
     temelBilimler: TemelBilimModule;
     temelKlinik: KlinikGirişModule;
-    tusDestek: TUSDeste kModule;
+    tusDestek: TUSDestekModule;
   };
   görevler: {
     flash: TaskContent[]; // 5-7 dakika
@@ -263,12 +263,12 @@ export const focusGörevÖrnek: TaskContent = {
               'G': 'Gallstones (EN SIK %40)',
               'E': 'Ethanol (%30)',
               'T': 'Trauma',
-              'S': 'Steroids',
+              'S': 'Steroids / Scorpion sting',
               'M': 'Mumps',
               'A': 'Autoimmune',
-              'S': 'Scorpion sting',
+              'S2': 'Scorpion sting (alternatif)',
               'H': 'Hyperlipidemia/Hypercalcemia',
-              'E': 'ERCP',
+              'E2': 'ERCP (endoskopik)',
               'D': 'Drugs'
             }
           }
